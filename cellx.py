@@ -1,4 +1,3 @@
-#GitHub version!
 from openpyxl import load_workbook
 from openpyxl.styles.borders import Border, Side
 from openpyxl.styles import Font, Alignment
@@ -20,9 +19,10 @@ thick_border = Border(left=Side(style='thick'),
                      right=Side(style='thick'), 
                      top=Side(style='thick'), 
                      bottom=Side(style='thick'))
-
-wb = load_workbook("cell.xlsx")
+print("Loading file...")
+wb = load_workbook("cell.xlsx", read_only=True)
 ws = wb.worksheets[0]
+print("Done")
 
 '''
 A - артикул (3 merged cells)
@@ -31,47 +31,46 @@ G - адресом
 J - колличество(шт)
 '''
 
-row_data = {}
-
-for i in range(1, ws.max_row + 1):
+raw_data = {}
+print("Collecting data...")
+for i in range(495, 511):
 	art = ws[f"A{i}"].value
 	name = ws[f"D{i}"].value
 	adr = ws[f"G{i}"].value
 	q = ws[f"J{i}"].value
-	if adr in row_data:
-		row_data[adr].append([name, art, q])
+	if adr in raw_data:
+		raw_data[adr].append([name, art, q])
+		print(i)
 	else:
-		row_data[adr] = [[name, art, q]]
-
+		raw_data[adr] = [[name, art, q]]
+		print(i)
+print("raw_data collected.")
 wb.close()
 
+adressless = {} # Wrong adress
+for key in raw_data:
+	if key[2:4].isdigit() == False:
+		af = raw_data.pop(key)
+		adressless.update({key: af})
 
 os.mkdir(f"{d}")
 os.mkdir(f"{d}/Без адреса")
-wb = Workbook()
-ws = wb.active
-ws.title = "Без адреса"
-wb.save(f"{d}/Без адреса/00-00.xlsx")
 
 for i in range(1, 21):
 	os.mkdir(f"{d}/{i} ряд")
 
-act_row = 1
-act_skak = 1
-
-wb = load_workbook(f"{d}/Без адреса/00-00.xlsx")
+wb = Workbook()
+ws = wb.active
+ws.title = "Без адреса"
 ws = wb.worksheets[0]
-for key in row_data:
-	if key[2:4].isdigit() == False:
-		af = row_data.pop(key)
-		print(af)
 		# ws.append(key)
 		# for row in af:
 		# 	ws.append(row)
 wb.save(f"{d}/Без адреса/00-00.xlsx")
 
-adr_list = list(row_data)
+adr_list = list(raw_data)
 adr_list.sort()
+print(raw_data[adr_list[0]])
 
 # for n in range(0, len(adr_list)):
 # 	i = adr_list[n]
@@ -90,7 +89,7 @@ adr_list.sort()
 # 		ws["A1"] = stak_title
 # 		ws["A1"].alignment = Alignment(horizontal="center", vertical="center")
 
-# 		for row in row_data[i]:
+# 		for row in raw_data[i]:
 # 			ws.append(row)
 
 # 		'''
