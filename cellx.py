@@ -26,25 +26,39 @@ print("Done")
 
 '''
 A - артикул (3 merged cells)
-D - наименование товара
-G - адресом
-J - колличество(шт)
+B - наименование товара
+C - адресом
+D - колличество(шт)
 ws.max_row - количество строк на листе
 '''
 
 raw_data = {}
 print("Collecting data...")
-for i in range(1, 100):
-	art = ws[f"A{i}"].value
-	name = ws[f"D{i}"].value
-	adr = ws[f"G{i}"].value
-	q = ws[f"J{i}"].value
+
+area = ws["A1":f"D{ws.max_row}"]
+for a, b, c, d in area:
+	art = a.value
+	name = b.value
+	adr = c.value
+	q = d.value
 	if adr in raw_data:
 		raw_data[adr].append([name, art, q])
-		print(i)
+		print(art, adr)
 	else:
 		raw_data[adr] = [[name, art, q]]
-		print(i)
+		print(art, adr)
+
+# for i in range(1, 100):
+# 	art = ws[f"A{i}"].value
+# 	name = ws[f"B{i}"].value
+# 	adr = ws[f"C{i}"].value
+# 	q = ws[f"D{i}"].value
+# 	if adr in raw_data:
+# 		raw_data[adr].append([name, art, q])
+# 		print(i)
+# 	else:
+# 		raw_data[adr] = [[name, art, q]]
+# 		print(i)
 print("raw_data collected.")
 wb.close()
 
