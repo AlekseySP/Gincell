@@ -29,11 +29,12 @@ A - артикул (3 merged cells)
 D - наименование товара
 G - адресом
 J - колличество(шт)
+ws.max_row - количество строк на листе
 '''
 
 raw_data = {}
 print("Collecting data...")
-for i in range(495, 511):
+for i in range(1, 100):
 	art = ws[f"A{i}"].value
 	name = ws[f"D{i}"].value
 	adr = ws[f"G{i}"].value
