@@ -19,8 +19,11 @@ thick_border = Border(left=Side(style='thick'),
                      right=Side(style='thick'), 
                      top=Side(style='thick'), 
                      bottom=Side(style='thick'))
+
+center = Alignment(horizontal="center", vertical="center")
+
 print("Loading file...")
-wb = load_workbook("cell.xlsx", read_only=True)
+wb = load_workbook("cell.xlsx")
 ws = wb.worksheets[0]
 print("Done")
 
@@ -35,38 +38,38 @@ ws.max_row - количество строк на листе
 raw_data = {}
 print("Collecting data...")
 
-area = ws["A1":f"D{ws.max_row}"]
-for a, b, c, d in area:
-	art = a.value
-	name = b.value
-	adr = c.value
-	q = d.value
-	if adr in raw_data:
-		raw_data[adr].append([name, art, q])
-		print(art, adr)
-	else:
-		raw_data[adr] = [[name, art, q]]
-		print(art, adr)
+rowLen = max((c.row for c in ws['A'] if c.value is not None))
 
-# for i in range(1, 100):
-# 	art = ws[f"A{i}"].value
-# 	name = ws[f"B{i}"].value
-# 	adr = ws[f"C{i}"].value
-# 	q = ws[f"D{i}"].value
-# 	if adr in raw_data:
-# 		raw_data[adr].append([name, art, q])
-# 		print(i)
-# 	else:
-# 		raw_data[adr] = [[name, art, q]]
-# 		print(i)
+for row in ws.iter_rows(min_row=1, min_col=1, max_row=rowLen, max_col=4):
+		art = row[0].value
+		name = row[1].value
+		adr = row[2].value
+		q = row[3].value
+		if q == None:
+			q = 0
+		if adr in raw_data:
+			raw_data[adr].append([name, art, q])
+		else:
+			raw_data[adr] = [[name, art, q]]
+			
 print("raw_data collected.")
 wb.close()
 
-adressless = {} # Wrong adress
+adr_list = list(raw_data)
+adr_list.sort()
+
+adressless_l = [] # Wrong adress
 for key in raw_data:
 	if key[2:4].isdigit() == False:
-		af = raw_data.pop(key)
-		adressless.update({key: af})
+		adressless_l.append(key)
+		
+adressless_d = {}
+for i in adressless_l:
+	af = raw_data.pop(i)
+	adressless_d.update({i: af})
+	
+adr_list = list(raw_data)
+adr_list.sort()
 
 os.mkdir(f"{d}")
 os.mkdir(f"{d}/Без адреса")
@@ -74,18 +77,73 @@ os.mkdir(f"{d}/Без адреса")
 for i in range(1, 21):
 	os.mkdir(f"{d}/{i} ряд")
 
-wb = Workbook()
-ws = wb.active
-ws.title = "Без адреса"
-ws = wb.worksheets[0]
-		# ws.append(key)
-		# for row in af:
-		# 	ws.append(row)
-wb.save(f"{d}/Без адреса/00-00.xlsx")
+def creds(adress):
+	"""ф-я рассчёта папки для сохранения, оглавления для стелажки/название файла используя указанный адрес"""
+	file_name = f"{adress[2: 4]} - {adress[5: 7]}"
+	folder = f"{int(adress[2: 4])} ряд"
+	return [file_name, folder]
 
-adr_list = list(raw_data)
-adr_list.sort()
-print(raw_data[adr_list[0]])
+def stak_create(dictionary):
+	print("Creating staks...")
+	"""Функция, формирующая стелажку
+из указанного словаря"""
+	r = 1
+	c = 1
+	for a in dictionary:
+		af = raw_data[a]
+		wb = Workbook()
+		ws = wb.active
+		ws.title = creds(a)[0]
+		ws.merge_cells('A1:C1')
+		ws.cell(row=1, column=1, value=creds(a)[0]).font = fontStyle
+		ws["A1"].alignment = center
+		ws.column_dimensions['A'].width = 25
+		ws.row_dimensions[1].height = 30
+		r += 1
+		for row in af:
+			ws.append(row)
+			r += 1
+		r = 1
+		wb.save(f"{d}/{creds(a)[1]}/{creds(a)[0]}.xlsx")
+	print("Staks created")
+	#оглавление 1х3 без границ, высокое
+	#адрес ячейки с жирными полями
+	#содержимое адреса с тонкими полями
+	#сохранить книгу
+test_list = ["A-20-04-01", "B-20-19-02"]
+stak_create(adr_list)
+
+def wrong_adress():
+	print("Searching wrong adresses...")
+	wb = Workbook()
+	ws = wb.active
+	ws.title = "Без адреса"
+	r = 1
+	c = 1
+	ws.merge_cells('A1:C1')
+	ws.cell(row=1, column=1, value="Без адреса").font = fontStyle
+	ws["A1"].alignment = center
+	ws.column_dimensions['A'].width = 50
+	ws.column_dimensions['B'].width = 20
+	ws.column_dimensions['C'].width =5
+	ws.row_dimensions[1].height = 40
+	r += 1
+	for i in adressless_l:
+		 af = adressless_d[i]
+		 ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=3)
+		 ws.cell(row=r, column=c).value = i
+		 ws.cell(row=r, column=c).border = thick_border
+		 ws.cell(row=r, column=c).alignment = center
+		 r += 1
+		 for row in af:
+		 	ws.append(row)
+		 	for n in range(1, 4):
+		 		ws.cell(row=r, column=n).border = thin_border
+		 	r += 1
+	wb.save(f"{d}/Без адреса/Без адреса.xlsx")
+	print("Wrong sdresses found")
+
+wrong_adress()
 
 # for n in range(0, len(adr_list)):
 # 	i = adr_list[n]
@@ -125,4 +183,4 @@ print(raw_data[adr_list[0]])
 # ws["A1"] = f"{row_number} ряд, {stak_number} стеллаж"
 
 
-print("Done")
+print("Program finished")
