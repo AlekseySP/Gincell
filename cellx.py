@@ -88,23 +88,37 @@ def stak_create(dictionary):
 	"""Функция, формирующая стелажку
 из указанного словаря"""
 	r = 1
-	c = 1
 	for a in dictionary:
 		af = raw_data[a]
-		wb = Workbook()
-		ws = wb.active
-		ws.title = creds(a)[0]
-		ws.merge_cells('A1:C1')
-		ws.cell(row=1, column=1, value=creds(a)[0]).font = fontStyle
-		ws["A1"].alignment = center
-		ws.column_dimensions['A'].width = 25
-		ws.row_dimensions[1].height = 30
+		row_number = creds(a)[1]
+		stak_title = creds(a)[0]
+		if os.path.isfile(f"{d}/{row_number}/{stak_title}.xlsx") == False:
+			r = 1
+			wb = Workbook()
+			ws = wb.active
+			ws.title = stak_title
+			ws.merge_cells('A1:C1')
+			ws.cell(row=1, column=1, value=stak_title).font = fontStyle
+			ws["A1"].alignment = center
+			ws.column_dimensions['A'].width = 50
+			ws.column_dimensions['B'].width = 20
+			ws.column_dimensions['C'].width =5
+			ws.row_dimensions[1].height = 40
+			r += 1
+			wb.save(f"{d}/{row_number}/{stak_title}.xlsx")
+		
+		wb = load_workbook(f"{d}/{row_number}/{stak_title}.xlsx")
+		ws = wb.worksheets[0]
+		ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=3)
+		ws.cell(row=r, column=1, value=a).border = thick_border
+		ws.cell(row=r, column=1).alignment = center
 		r += 1
 		for row in af:
 			ws.append(row)
+			for n in range(1, 4):
+		 		ws.cell(row=r, column=n).border = thin_border
 			r += 1
-		r = 1
-		wb.save(f"{d}/{creds(a)[1]}/{creds(a)[0]}.xlsx")
+		wb.save(f"{d}/{row_number}/{stak_title}.xlsx")
 	print("Staks created")
 	#оглавление 1х3 без границ, высокое
 	#адрес ячейки с жирными полями
@@ -174,9 +188,9 @@ wrong_adress()
 
 """To do:
 * Настроить печатную форму конечного документа
-	-ширина столбца
-	-размер шрифта
-	-наличие заглавного номера пролёта (например 2-15)
+	+ширина столбца
+	+размер шрифта
+	+наличие заглавного номера пролёта (например 2-15)
 	-масштаб на листе А4
 
 * Распаковать row_data по документам"""
