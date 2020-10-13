@@ -8,7 +8,7 @@ import os
 
 d = datetime.now()
 
-fontStyle = Font(size = "18", bold=True)
+fontStyle = Font(name="Arial", size = "18", bold=True)
 
 thin_border = Border(left=Side(style='thin'), 
                      right=Side(style='thin'), 
@@ -101,7 +101,7 @@ def stak_create(dictionary):
 			ws.cell(row=1, column=1, value=stak_title).font = fontStyle
 			ws["A1"].alignment = center
 			ws.column_dimensions['A'].width = 50
-			ws.column_dimensions['B'].width = 20
+			ws.column_dimensions['B'].width = 16
 			ws.column_dimensions['C'].width =5
 			ws.row_dimensions[1].height = 40
 			r += 1
