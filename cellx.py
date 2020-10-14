@@ -8,7 +8,9 @@ import os
 
 d = datetime.now()
 
-fontStyle = Font(name="Arial", size = "18", bold=True)
+headFontStyle = Font(name="Arial", size = "20", bold=True)
+addressFontStyle = Font(name="Arial", size = "14", bold=True)
+rowFontStyle = Font(name="Arial", size = "12", bold=False)
 
 thin_border = Border(left=Side(style='thin'), 
                      right=Side(style='thin'), 
@@ -36,6 +38,7 @@ ws.max_row - количество строк на листе
 '''
 
 raw_data = {}
+
 print("Collecting data...")
 
 rowLen = max((c.row for c in ws['A'] if c.value is not None))
@@ -54,6 +57,8 @@ for row in ws.iter_rows(min_row=1, min_col=1, max_row=rowLen, max_col=4):
 			
 print("raw_data collected.")
 wb.close()
+
+#DAC45850041A48-KIT  14-12-02  18
 
 adr_list = list(raw_data)
 adr_list.sort()
@@ -85,8 +90,7 @@ def creds(adress):
 
 def stak_create(dictionary):
 	print("Creating staks...")
-	"""Функция, формирующая стелажку
-из указанного словаря"""
+	"""Функция, формирующая стелажку из указанного словаря"""
 	r = 1
 	for a in dictionary:
 		af = raw_data[a]
@@ -98,10 +102,10 @@ def stak_create(dictionary):
 			ws = wb.active
 			ws.title = stak_title
 			ws.merge_cells('A1:C1')
-			ws.cell(row=1, column=1, value=stak_title).font = fontStyle
+			ws.cell(row=1, column=1, value=stak_title).font = headFontStyle
 			ws["A1"].alignment = center
 			ws.column_dimensions['A'].width = 50
-			ws.column_dimensions['B'].width = 16
+			ws.column_dimensions['B'].width = 19
 			ws.column_dimensions['C'].width =5
 			ws.row_dimensions[1].height = 40
 			r += 1
@@ -112,19 +116,17 @@ def stak_create(dictionary):
 		ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=3)
 		ws.cell(row=r, column=1, value=a).border = thick_border
 		ws.cell(row=r, column=1).alignment = center
+		ws.cell(row=r, column=1).font = addressFontStyle
 		r += 1
 		for row in af:
 			ws.append(row)
 			for n in range(1, 4):
 		 		ws.cell(row=r, column=n).border = thin_border
+		 		ws.cell(row=r, column=n).font = rowFontStyle
 			r += 1
 		wb.save(f"{d}/{row_number}/{stak_title}.xlsx")
 	print("Staks created")
-	#оглавление 1х3 без границ, высокое
-	#адрес ячейки с жирными полями
-	#содержимое адреса с тонкими полями
-	#сохранить книгу
-test_list = ["A-20-04-01", "B-20-19-02"]
+
 stak_create(adr_list)
 
 def wrong_adress():
@@ -135,7 +137,7 @@ def wrong_adress():
 	r = 1
 	c = 1
 	ws.merge_cells('A1:C1')
-	ws.cell(row=1, column=1, value="Без адреса").font = fontStyle
+	ws.cell(row=1, column=1, value="Без адреса").font = headFontStyle
 	ws["A1"].alignment = center
 	ws.column_dimensions['A'].width = 50
 	ws.column_dimensions['B'].width = 20
@@ -158,43 +160,6 @@ def wrong_adress():
 	print("Wrong sdresses found")
 
 wrong_adress()
-
-# for n in range(0, len(adr_list)):
-# 	i = adr_list[n]
-# 	if 
-
-# 	if len(i) == 10:
-# 		row_number = i[2:4]
-# 		stak_number = i[5:7]
-# 		shelf_number = i[9:]
-# 		stak_title  = f"{row_number}-{stak_number}"
-
-# 		wb = Workbook()
-# 		ws = wb.active
-# 		ws.title = stak_title
-# 		ws.merge_cells('A1:C3')
-# 		ws["A1"] = stak_title
-# 		ws["A1"].alignment = Alignment(horizontal="center", vertical="center")
-
-# 		for row in raw_data[i]:
-# 			ws.append(row)
-
-# 		'''
-# 		To do: выделить данные только на один стеллаж
-# 		'''
-# 		wb.save(f"{d}/{int(row_number)} ряд/{row_number} - {stak_number}.xlsx")
-# 	else:
-				
-
-"""To do:
-* Настроить печатную форму конечного документа
-	+ширина столбца
-	+размер шрифта
-	+наличие заглавного номера пролёта (например 2-15)
-	-масштаб на листе А4
-
-* Распаковать row_data по документам"""
-# ws["A1"] = f"{row_number} ряд, {stak_number} стеллаж"
 
 
 print("Program finished")
