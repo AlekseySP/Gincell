@@ -16,8 +16,10 @@ import os
 
 KV = '''
 BoxLayout:
-	orientation: "vertical"
+
 	path_label: path_label
+
+	orientation: "vertical"
 	
 	BoxLayout:
 		orientation: "horizontal"
@@ -58,24 +60,30 @@ BoxLayout:
 
 
 class GincellApp(MDApp):
+	path_label = ObjectProperty(None)
 	def __init__(self, **kwargs):
 		super().__init__(**kwargs)
 		Window.bind(on_keyboard=self.events)
 		self.manager_open = False
-		self.file_manager = MDFileManager(exit_manager=self.exit_manager, select_path=self.load, preview=False,
-        )
-	
+		self.file_manager = MDFileManager(
+            exit_manager=self.exit_manager,
+            select_path=self.select_path,
+            previous=False,
+            )
+		self.file_manager.ext = ['.xlsx']
+
 	def confirm_text(self):
 			toast("Staks in progress...")
 		
 	def file_manager_open(self):
-		self.file_manager.show('/data/media/0')
+		self.file_manager.show('/home/sveta/programming/git')#('/data/media/0')
 		self.manager_open = True
 		
-	def load(self, path):
-			self.t = path
+	def select_path(self, path):
+			self.t = str(path)
+			self.exit_manager()
 			toast(self.t)
-			#self.path_label.text = self.t
+			self.path_label.text = self.t
 			
 	def exit_manager(self, *args):
 		self.manager_open = False
