@@ -2,12 +2,14 @@
 
 from kivymd.app import MDApp
 from kivy.uix.floatlayout import FloatLayout
+from kivy.core.window import Window
 from kivy.factory import Factory
 from kivy.lang import Builder
+from kivymd.uix.filemanager import MDFileManager
 from kivymd.toast import toast
 from kivy.uix.popup import Popup
 from kivy.properties import ObjectProperty
-#from kivymd.uix.label import MDLabel
+from kivymd.uix.label import MDLabel
 #from kivymd.uix.button import MDRectangleFlatButton
 import os
 
@@ -26,13 +28,14 @@ BoxLayout:
 		MDLabel:
 			id: path_label
 			text: "path/to/file/xlsx"
+			theme_text_color: "Secondary"
 			font_size: "20sp"
 			font_name: "Ubuntu-M"
 			
 		MDRectangleFlatButton:
 			text: "Open file"
 			font_name: "Ubuntu-L"
-			on_release: app.show_load()
+			on_release: app.file_manager_open()
 	
 	BoxLayout:
 		orientation: "horizontal"
@@ -49,60 +52,47 @@ BoxLayout:
 			text: "Exit"
 			font_name: "Ubuntu-L"
 			on_release: app.stop()
-			
-<LoadDialog>:
-	BoxLayout:
-		size: root.size
-        pos: root.pos
-        orientation: "vertical"
-        FileChooserIconView:
-            id: filechooser
-
-        BoxLayout:
-            size_hint_y: None
-            height: 30
-            Button:
-                text: "Cancel"
-                on_release: root.cancel()
-
-            Button:
-                text: "Load"
-                on_release: app.load(filechooser.path, filechooser.selection)		
 '''
 
-class LoadDialog(FloatLayout):
-	load = ObjectProperty(None)
-	cancel = ObjectProperty(None)
+
 
 
 class GincellApp(MDApp):
-	
-	loadfile = ObjectProperty(None)
-	path_label = ObjectProperty(None)
+	def __init__(self, **kwargs):
+		super().__init__(**kwargs)
+		Window.bind(on_keyboard=self.events)
+		self.manager_open = False
+		self.file_manager = MDFileManager(exit_manager=self.exit_manager, select_path=self.load, preview=False,
+        )
 	
 	def confirm_text(self):
 			toast("Staks in progress...")
+		
+	def file_manager_open(self):
+		self.file_manager.show('/data/media/0')
+		self.manager_open = True
+		
+	def load(self, path):
+			self.t = path
+			toast(self.t)
+			#self.path_label.text = self.t
 			
-	def dismiss_popup(self):
-		self._popup.dismiss()
+	def exit_manager(self, *args):
+		self.manager_open = False
+		self.file_manager.close()
 		
-	def show_load(self):
-		content = LoadDialog(load=self.load, cancel=self.dismiss_popup)
-		self._popup = Popup(title="Load file", content=content, size_hint=(0.9, 0.9))
-		self._popup.open()
-		
-	def load(self, path, filename):
-			self.t = filename
-			self.path_label.text = self.t
-			self.dismiss_popup()
+	def events(self, instance, keyboard, keycode, text, modifiers):
+		if keyboard in (1001, 27):
+			if self.manager_open:
+				self.file_manager.back()
+		return True
 	
 	def build(self):
+		self.theme_cls.theme_style = "Dark"
+		self.theme_cls.primary_palette = "Orange"
+
 		screen = Builder.load_string(KV)
 		return screen
-
-
-Factory.register('Root', cls=GincellApp)
-Factory.register('LoadDialog', cls=LoadDialog)
 
 if __name__ == '__main__':
 	GincellApp().run()

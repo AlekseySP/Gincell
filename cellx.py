@@ -8,7 +8,7 @@ import os
 
 d = datetime.now()
 
-headFontStyle = Font(name="Arial", size = "20", bold=True)
+headFontStyle = Font(name="Arial", size = "30", bold=True)
 addressFontStyle = Font(name="Arial", size = "14", bold=True)
 rowFontStyle = Font(name="Arial", size = "12", bold=False)
 
@@ -106,7 +106,7 @@ def stak_create(dictionary):
 			ws["A1"].alignment = center
 			ws.column_dimensions['A'].width = 50
 			ws.column_dimensions['B'].width = 19
-			ws.column_dimensions['C'].width =5
+			ws.column_dimensions['C'].width = 6
 			ws.row_dimensions[1].height = 40
 			r += 1
 			wb.save(f"{d}/{row_number}/{stak_title}.xlsx")
@@ -141,7 +141,7 @@ def wrong_adress():
 	ws["A1"].alignment = center
 	ws.column_dimensions['A'].width = 50
 	ws.column_dimensions['B'].width = 20
-	ws.column_dimensions['C'].width =5
+	ws.column_dimensions['C'].width = 6
 	ws.row_dimensions[1].height = 40
 	r += 1
 	for i in adressless_l:
