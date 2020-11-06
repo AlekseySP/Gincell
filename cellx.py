@@ -6,7 +6,7 @@ from datetime import datetime
 
 import os
 
-d = datetime.now()
+d = datetime.now().strftime('%Y.%m.%d %H-%M-%S')
 
 headFontStyle = Font(name="Arial", size = "30", bold=True)
 addressFontStyle = Font(name="Arial", size = "14", bold=True)
